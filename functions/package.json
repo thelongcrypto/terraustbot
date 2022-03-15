@@ -6,7 +6,9 @@
     "shell": "npm run build && firebase functions:shell",
     "start": "npm run shell",
     "deploy": "firebase deploy --only functions",
-    "logs": "firebase functions:log"
+    "logs": "firebase functions:log",
+    "import": "npx -p node-firestore-import-export firestore-import -a $GOOGLE_APPLICATION_CREDENTIALS -b ./config/firestore-export.json",
+    "export": "npx -p node-firestore-import-export firestore-export -a $GOOGLE_APPLICATION_CREDENTIALS -b ./config/firestore-export.json"
   },
   "engines": {
     "node": "16"

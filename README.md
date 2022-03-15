@@ -14,10 +14,11 @@ Recommend to check the bot with testnet first to gain confidence and know how to
 # Telegram commands
 ## arbitrate
 - hi | hello
+- mainnet | testnet: switch network to mainnet or testnet
 - info | i: return information on configurations and quick stats
 - balance | bl: show wallet balance
 - enable autoswap | ea: autoswap LUNA -> bLUNA or vice versa when rate is met
-- disable autoswap | da:
+- disable autoswap | da | panic: disable autoswap
 - reset swap batch | rsb: reset total swapped token to 0 to allow more swap
 - swaprate | sr [pair] [rate] [reversed | r]: use <i>reveserd</i> option to convert rate to 1/rate
 - swapbatch | sb [max batch size]
@@ -36,10 +37,33 @@ Recommend to check the bot with testnet first to gain confidence and know how to
 
 # How to setup
 If below steps are still complicated for you, I am thinking about how to make deployment easier. In the mean time reach me through https://twitter.com/thelongcrypto for support.
+## 1. Create firebase secrets
+Terra Wallet mnemonic phrases, telegram bot api key and your telegram user id is required.
+If you don't know how to get telegram bot api key and telegram user id please see section telegram bot below.
+Type following commands and input value accordingly
+`firebase functions:secrets:set MNEMONIC`
+`firebase functions:secrets:set BOT_API_KEY`
+`firebase functions:secrets:set BOT_CHAT_ID`
 
+## 2. Create firebase Firestore database and init data
+- Create firebase Firestore database
+- Import data
+Get your firebase credential and put it to GOOGLE_APPLICATION_CREDENTIALS env variable.
+`export GOOGLE_APPLICATION_CREDENTIALS=...`
+Going to `functions` folder and run following commands: 
+`npm run import`
+Check if you can see `general_config`, `mainnet_config` and `testnet_config` collections in your database.
 
-## Production with firebase cloud function
-## Local development
+## 3. Local development
+Go to `functions` folder.
+`npm run build && firebase emulators:start`
+## 4. Production with firebase cloud function
+Go to `functions` folder.
+`firebase deploy --only functions`
+
+## Telegram bot
+- Chat with BotFather to create your own bot and get bot api key (token). It is a string like 5308330920:AAGAxdxXx0L4epJ7iBaNCSbC6GHwC7Nw9ii
+- Chat with IDBot to get your user id. It is a number like 6252965263
 
 ## Testing with testnet
 If you would like to try the bot before running in production, you may want to use the Terra Testnet. You can add fake money to your Testnet Wallet using https://faucet.terra.money/.

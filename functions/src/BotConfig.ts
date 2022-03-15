@@ -74,6 +74,17 @@ export class BotConfig {
     return this.#config
   }
 
+  async setNetwork(mainnet: boolean = false) {
+    this.#config.mainnet = mainnet
+
+    await this.#db
+      .collection('general_config')
+      .doc('network')
+      .set({ mainnet: mainnet }, { merge: true })
+
+    await this.loadConfig()
+  }
+
   async setSwapRate(pair: string, rate: number) {
     this.#config[pair].minSwapRate = rate
 
@@ -124,8 +135,6 @@ export class BotConfig {
     }
 
     this.#config[pair].swappedTokens += tokens
-
-    console.log('swapped tokens:', this.#config[pair].swappedTokens)
 
     // update db
     await this.#db
@@ -181,14 +190,6 @@ export class BotConfig {
   }
 
   shouldRemind(pair: string): boolean {
-    console.log(
-      'shouldRemind',
-      pair,
-      new Date(),
-      this.#config[pair].nextRemindTime?.toDate(),
-      this.#config[pair].nextRemindTime == undefined,
-      this.#config[pair].nextRemindTime == null,
-    )
     const now = new Date()
     return (
       this.#config[pair].nextRemindTime == undefined ||

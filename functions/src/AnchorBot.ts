@@ -94,7 +94,7 @@ export class AnchorBot {
         gasAdjustment: 1.6,
       })
 
-      console.log(this.getConfig().lcdUrl, this.getConfig().chainId)
+      console.log('AnchorBot', this.getConfig().lcdUrl, this.getConfig().chainId)
 
       // Initialization of the Anchor Client
       const provider = this.getConfig().chainId === 'columbus-5' ? columbus5 : bombay12
@@ -267,13 +267,7 @@ export class AnchorBot {
   }
 
   shouldBorrow(ltv: Decimal, goTo?: Decimal) {
-    console.log(
-      'shouldBorrow',
-      goTo,
-      ltv,
-      typeof goTo !== 'undefined',
-      typeof goTo !== 'undefined' && ltv.lessThan(goTo),
-    )
+
     return (
       (typeof goTo !== 'undefined' && ltv.lessThan(goTo)) ||
       +ltv.lessThan(this.getConfig().anchorborrow.triggerLTV)
@@ -281,13 +275,6 @@ export class AnchorBot {
   }
 
   shouldRepay(ltv: Decimal, goTo?: Decimal) {
-    console.log(
-      'shouldRepay',
-      goTo,
-      ltv,
-      typeof goTo !== 'undefined',
-      typeof goTo !== 'undefined' && ltv > goTo,
-    )
     return (
       (typeof goTo !== 'undefined' && ltv.greaterThan(goTo)) ||
       +ltv.greaterThan(this.getConfig().anchorrepay.triggerLTV)
@@ -395,12 +382,8 @@ export class AnchorBot {
 
     this.heartbeat(useLogger)
 
-    //const swapRate = await this.getbLUNASwapRate()
-
     const performGoto = typeof goTo !== 'undefined'
     const ltv = await this.computeLTV()
-
-    console.log('performGoto', performGoto, goTo)
 
     if (this.shouldBorrow(ltv, goTo)) {
       const amountToBorrow = await this.computeAmountToBorrow(goTo)
@@ -790,7 +773,6 @@ export class AnchorBot {
 
   async getBorrowLimit(): Promise<Decimal> {
     let borrowLimit = new Decimal(await this.#anchor.borrow.getBorrowLimit(this.#walletDenom))
-    //console.log('Borrow limit: ', borrowLimit)
     return borrowLimit
     // return this.cache('borrowLimit', () => this.#anchor.borrow.getBorrowLimit(this.#walletDenom))
   }

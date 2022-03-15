@@ -19,12 +19,12 @@ const tgBot = new Telegraf(process.env.BOT_API_KEY || '')
 // // https://firebase.google.com/docs/functions/typescript
 //
 // us-central1 is default region for firebase function
-// const telegramUrl = `https://terraustbot.loca.lt/terraustbot/us-central1/telegram10101`
 let telegramUrl = `https://us-central1-${process.env
-  .GCLOUD_PROJECT!}.cloudfunctions.net/telegram10101`
+  .GCLOUD_PROJECT!}.cloudfunctions.net/telegrambot`
 
 if (process.env.GOOGLE_APPLICATION_CREDENTIALS) {
-  telegramUrl = `https://terraustbot.loca.lt/terraustbot/us-central1/telegram10101`
+  telegramUrl = `https://${process.env.GCLOUD_PROJECT!}.loca.lt/${process.env
+    .GCLOUD_PROJECT!}/us-central1/telegrambot`
 }
 
 tgBot.telegram.setWebhook(telegramUrl)
@@ -72,11 +72,32 @@ tgBot.on('text', async (ctx) => {
       },
     )
     // await arbBot.info()
+  } else if (command === 'mainnet' || command === 'testnet') {
+    const message = await ctx.replyWithHTML(`Switching to ${command}...`)
+    await botConfig.setNetwork(command === 'mainnet')
+    arbBot.initialize()
+    anchorBot.initialize()
+
+    const msg = await arbBot.getInfo()
+    const anchorMsg = await anchorBot.getInfo(false)
+    ctx.telegram.editMessageText(
+      message.chat.id,
+      message.message_id,
+      undefined,
+      `${msg} ${anchorMsg}`,
+      {
+        parse_mode: 'HTML',
+      },
+    )
   } else if (ctx.message.text === 'enable autoswap' || ctx.message.text === 'ea') {
     await botConfig.enableAutoswap()
     ctx.reply(`Enabled autoswap`)
     await arbBot.info()
-  } else if (ctx.message.text === 'disable autoswap' || ctx.message.text === 'da') {
+  } else if (
+    ctx.message.text === 'disable autoswap' ||
+    ctx.message.text === 'da' ||
+    ctx.message.text === 'panic'
+  ) {
     await botConfig.disableAutoswap()
     ctx.reply(`Disabled autoswap`)
     await arbBot.info()
@@ -199,8 +220,8 @@ tgBot.on('text', async (ctx) => {
   }
 })
 
-exports.telegram10101 = functions
-  .runWith({ secrets: ['MNEMONIC', 'BOT_API_KEY'] })
+exports.telegrambot = functions
+  .runWith({ secrets: ['MNEMONIC', 'BOT_API_KEY', 'BOT_CHAT_ID'] })
   .https.onRequest(async (request, response) => {
     try {
       await botConfig.loadConfig()
@@ -215,7 +236,7 @@ exports.telegram10101 = functions
   })
 
 exports.getinfo = functions
-  .runWith({ secrets: ['MNEMONIC', 'BOT_API_KEY'] })
+  .runWith({ secrets: ['MNEMONIC', 'BOT_API_KEY', 'BOT_CHAT_ID'] })
   .https.onRequest(async (request, response) => {
     try {
       await botConfig.loadConfig()
@@ -232,7 +253,7 @@ exports.getinfo = functions
   })
 
 exports.checkarb = functions
-  .runWith({ secrets: ['MNEMONIC', 'BOT_API_KEY'] })
+  .runWith({ secrets: ['MNEMONIC', 'BOT_API_KEY', 'BOT_CHAT_ID'] })
   .https.onRequest(async (request, response) => {
     try {
       await botConfig.loadConfig()
@@ -248,7 +269,7 @@ exports.checkarb = functions
   })
 
 exports.arbbot = functions
-  .runWith({ secrets: ['MNEMONIC', 'BOT_API_KEY'] })
+  .runWith({ secrets: ['MNEMONIC', 'BOT_API_KEY', 'BOT_CHAT_ID'] })
   .pubsub.schedule('every 1 minutes')
   .onRun(async (context) => {
     try {
@@ -266,7 +287,7 @@ exports.arbbot = functions
 
 // anchor protocol
 exports.checkanchor = functions
-  .runWith({ secrets: ['MNEMONIC', 'BOT_API_KEY'] })
+  .runWith({ secrets: ['MNEMONIC', 'BOT_API_KEY', 'BOT_CHAT_ID'] })
   .https.onRequest(async (request, response) => {
     try {
       await botConfig.loadConfig()
@@ -282,7 +303,7 @@ exports.checkanchor = functions
   })
 
 exports.anchorbot = functions
-  .runWith({ secrets: ['MNEMONIC', 'BOT_API_KEY'] })
+  .runWith({ secrets: ['MNEMONIC', 'BOT_API_KEY', 'BOT_CHAT_ID'] })
   .pubsub.schedule('every 1 minutes')
   .onRun(async (context) => {
     try {

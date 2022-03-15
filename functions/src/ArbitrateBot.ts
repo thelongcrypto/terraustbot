@@ -59,7 +59,7 @@ export class ArbitrateBot {
         gasAdjustment: 1.8,
       })
 
-      console.log(this.getConfig().lcdUrl, this.getConfig().chainId)
+      console.log('ArbitrateBot', this.getConfig().lcdUrl, this.getConfig().chainId)
 
       if (this.getConfig().mnemonic.split(' ').length == 24) {
         this.initWallet()
@@ -368,7 +368,6 @@ export class ArbitrateBot {
       if (swapLuna || swapbLuna) {
         await this.onSwapConditionHit(currentPair, swapRate, amount)
         const swapAmount = this.calculateSwapAmount(currentPair, amount)
-        // console.log('swapAmount', swapAmount)
         if (swapAmount > 0) {
           const swapBalance = new Coin(coinDenom, swapAmount)
 
@@ -420,10 +419,6 @@ export class ArbitrateBot {
 
     const ust = balance[0].get('uusd') || new Coin('uusd', 0)
     const luna = balance[0].get('uluna') || new Coin('uluna', 0)
-
-    // console.log('balance', ust.amount, luna.amount)
-    // const luna = balance.get('uluna');
-    // const krw = balance.get('ukrw');
 
     this.#cache.set('wallet', { luna, ust })
 
