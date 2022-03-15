@@ -39,26 +39,38 @@ Recommend to check the bot with testnet first to gain confidence and know how to
 If below steps are still complicated for you, I am thinking about how to make deployment easier. In the mean time reach me through https://twitter.com/thelongcrypto for support.
 ## 1. Create firebase secrets
 Terra Wallet mnemonic phrases, telegram bot api key and your telegram user id is required.
+
 If you don't know how to get telegram bot api key and telegram user id please see section telegram bot below.
+
 Type following commands and input value accordingly
+
 `firebase functions:secrets:set MNEMONIC`
+
 `firebase functions:secrets:set BOT_API_KEY`
+
 `firebase functions:secrets:set BOT_CHAT_ID`
 
 ## 2. Create firebase Firestore database and init data
 - Create firebase Firestore database
 - Import data
+
 Get your firebase credential and put it to GOOGLE_APPLICATION_CREDENTIALS env variable.
+
 `export GOOGLE_APPLICATION_CREDENTIALS=...`
+
 Going to `functions` folder and run following commands: 
+
 `npm run import`
+
 Check if you can see `general_config`, `mainnet_config` and `testnet_config` collections in your database.
 
 ## 3. Local development
 Go to `functions` folder.
+
 `npm run build && firebase emulators:start`
 ## 4. Production with firebase cloud function
 Go to `functions` folder.
+
 `firebase deploy --only functions`
 
 ## Telegram bot
