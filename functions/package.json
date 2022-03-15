@@ -1,0 +1,32 @@
+{
+  "name": "functions",
+  "scripts": {
+    "build": "tsc",
+    "serve": "npm run build && firebase emulators:start --only functions",
+    "shell": "npm run build && firebase functions:shell",
+    "start": "npm run shell",
+    "deploy": "firebase deploy --only functions",
+    "logs": "firebase functions:log"
+  },
+  "engines": {
+    "node": "16"
+  },
+  "main": "lib/index.js",
+  "dependencies": {
+    "@anchor-protocol/anchor-earn": "^2.0.0",
+    "@anchor-protocol/anchor.js": "^5.0.2",
+    "@terra-money/terra.js": "^3.0.8",
+    "decimal.js": "^10.3.1",
+    "dedent-js": "^1.0.1",
+    "dset": "^3.1.1",
+    "firebase-admin": "^10.0.2",
+    "firebase-functions": "^3.18.1",
+    "got": "^11.8.2",
+    "telegraf": "^4.7.0"
+  },
+  "devDependencies": {
+    "firebase-functions-test": "^0.2.0",
+    "typescript": "^4.5.4"
+  },
+  "private": true
+}
