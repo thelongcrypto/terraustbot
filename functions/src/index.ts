@@ -258,7 +258,8 @@ exports.checkarb = functions
     try {
       await botConfig.loadConfig()
       arbBot.initialize()
-      await arbBot.execute()
+      let result = await arbBot.execute()
+      response.status(200).send(result)
     } catch (e) {
       console.error(e)
     } finally {

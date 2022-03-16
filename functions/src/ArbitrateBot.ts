@@ -222,6 +222,7 @@ export class ArbitrateBot {
       // in case out of balance should continuously notify to wake me up
       Logger.log(
         dedent`
+        * ${this.#mainnet ? 'MAINNET' : 'TESTNET'}
         * [HIT${!this.shouldSwap(pair, amount) ? '<code>-NO SWAP</code>' : ''}] ${
           this.shouldSwap(pair, amount) ? 'Prepare to swap...' : 'Hit but do <code>no swap</code>!'
         }
@@ -264,59 +265,65 @@ export class ArbitrateBot {
       this.getWalletBalance(CoinSymbol.BLUNA),
     ])
 
-    const logMsg = dedent`
+    
+    if (useLogger) {
+      const logMsg = dedent`
+  * ${this.#mainnet ? 'MAINNET' : 'TESTNET'}
   * Autoswap [LUNA: ${this.getConfig()[CoinPair.LUNABLUNA].autoswap ? 'YES' : 'NO'} - bLUNA: ${
-      this.getConfig()[CoinPair.BLUNALUNA].autoswap ? 'YES' : 'NO'
-    }] [${
-      this.getConfig()[CoinPair.LUNABLUNA].swappedTokens >=
-      this.getConfig()[CoinPair.LUNABLUNA].maxSwapTokensPerBatch
-        ? 'Reached max swap tokens per batch for LUNA-bLUNA. Use rsb command to reset'
-        : ''
-    } - ${
-      this.getConfig()[CoinPair.BLUNALUNA].swappedTokens >=
-      this.getConfig()[CoinPair.BLUNALUNA].maxSwapTokensPerBatch
-        ? 'Reached max swap tokens per batch for bLUNA-LUNA. Use rsb command to reset'
-        : ''
-    }]!
+        this.getConfig()[CoinPair.BLUNALUNA].autoswap ? 'YES' : 'NO'
+      }]
   * Swap rates:
     - <code>LUNA-bLUNA</code>: current ${swapRate.toFixed(4)} vs target ${new Decimal(
-      +this.getConfig()[CoinPair.LUNABLUNA].minSwapRate,
-    ).toFixed(4)} ${
-      swapRate >= +this.getConfig()[CoinPair.LUNABLUNA].minSwapRate ? '<code>[OK]</code>' : ''
-    } ~ ${(1 / swapRate).toFixed(4)} vs ${new Decimal(
-      1 / +this.getConfig()[CoinPair.LUNABLUNA].minSwapRate,
-    ).toFixed(4)}
+        +this.getConfig()[CoinPair.LUNABLUNA].minSwapRate,
+      ).toFixed(4)} ${
+        swapRate >= +this.getConfig()[CoinPair.LUNABLUNA].minSwapRate ? '<code>[OK]</code>' : ''
+      } ~ ${(1 / swapRate).toFixed(4)} vs ${new Decimal(
+        1 / +this.getConfig()[CoinPair.LUNABLUNA].minSwapRate,
+      ).toFixed(4)} <code>${(100*swapRate / +this.getConfig()[CoinPair.LUNABLUNA].minSwapRate).toFixed(2)}%</code>
     - <code>bLUNA-LUNA</code>: current ${reverseSwapRate.toFixed(4)} vs target ${new Decimal(
-      +this.getConfig()[CoinPair.BLUNALUNA].minSwapRate,
-    ).toFixed(4)} ${
-      reverseSwapRate >= +this.getConfig()[CoinPair.BLUNALUNA].minSwapRate
-        ? '<code>[OK]</code>'
-        : ''
-    }
+        +this.getConfig()[CoinPair.BLUNALUNA].minSwapRate,
+      ).toFixed(4)} ${
+        reverseSwapRate >= +this.getConfig()[CoinPair.BLUNALUNA].minSwapRate
+          ? '<code>[OK]</code>'
+          : ''
+      } <code>${(100*reverseSwapRate / +this.getConfig()[CoinPair.BLUNALUNA].minSwapRate).toFixed(2)}%</code>
   * Balances:
     - LUNA: <code>${luna?.amount.dividedBy(MICRO_MULTIPLIER).toFixed(4)}</code> 
     - bLUNA: <code>${bluna?.amount.dividedBy(MICRO_MULTIPLIER).toFixed(4)}</code>
     - UST: <code>${ust?.amount.dividedBy(MICRO_MULTIPLIER).toFixed(4)}</code>
   * Quotas:
     - LUNA swap: swapped ${this.getConfig()[CoinPair.LUNABLUNA].swappedTokens} vs max ${
-      this.getConfig()[CoinPair.LUNABLUNA].maxSwapTokensPerBatch
-    }
+        this.getConfig()[CoinPair.LUNABLUNA].maxSwapTokensPerBatch
+      }
     - bLUNA swap: swapped ${this.getConfig()[CoinPair.BLUNALUNA].swappedTokens} vs max ${
-      this.getConfig()[CoinPair.BLUNALUNA].maxSwapTokensPerBatch
-    }`
-
-    if (useLogger) {
+        this.getConfig()[CoinPair.BLUNALUNA].maxSwapTokensPerBatch
+      }`
       Logger.log(logMsg)
     } else {
+      const logMsg = `${this.#mainnet ? 'MAINNET' : 'TESTNET'} AUTOSWAP[LUNA:${
+        this.getConfig()[CoinPair.LUNABLUNA].autoswap ? 'YES' : 'NO'
+      } - bLUNA:${this.getConfig()[CoinPair.BLUNALUNA].autoswap ? 'YES' : 'NO'}] LUNA-bLUNA: ${(
+        1 / swapRate
+      ).toFixed(5)} vs ${(1 / +this.getConfig()[CoinPair.LUNABLUNA].minSwapRate).toFixed(5)}${
+        swapRate >= +this.getConfig()[CoinPair.LUNABLUNA].minSwapRate ? ' [OK]' : ''
+      } (${((100 * swapRate) / +this.getConfig()[CoinPair.LUNABLUNA].minSwapRate).toFixed(
+        2,
+      )}%) bLUNA-LUNA: ${reverseSwapRate.toFixed(5)} vs ${+this.getConfig()[
+        CoinPair.BLUNALUNA
+      ].minSwapRate.toFixed(5)}${
+        reverseSwapRate >= +this.getConfig()[CoinPair.BLUNALUNA].minSwapRate ? ' [OK]' : ''
+      } (${((100 * reverseSwapRate) / +this.getConfig()[CoinPair.BLUNALUNA].minSwapRate).toFixed(
+        2,
+      )}%)`
       console.log(logMsg)
     }
   }
 
   async onSwappingToken(pair: CoinPair, swapRate: number, amount: number) {
     Logger.log(
-      `Swapping ${pair === CoinPair.LUNABLUNA ? 'LUNA→bLUNA' : 'bLUNA→LUNA'} [<code>${(
-        amount / MICRO_MULTIPLIER
-      ).toFixed(4)}</code> ${
+      `${this.#mainnet ? 'MAINNET' : 'TESTNET'}: Swapping ${
+        pair === CoinPair.LUNABLUNA ? 'LUNA→bLUNA' : 'bLUNA→LUNA'
+      } [<code>${(amount / MICRO_MULTIPLIER).toFixed(4)}</code> ${
         pair === CoinPair.LUNABLUNA ? 'LUNA' : 'bLUNA'
       } @ <code>${swapRate.toFixed(4)}</code>]`,
     )
@@ -325,9 +332,9 @@ export class ArbitrateBot {
 
   async onSwappedToken(pair: CoinPair, swapRate: number, amount: number) {
     Logger.log(
-      `Swapped ${pair === CoinPair.LUNABLUNA ? 'LUNA→bLUNA' : 'bLUNA→LUNA'} <code>${(
-        amount / MICRO_MULTIPLIER
-      ).toFixed(4)} ${
+      `${this.#mainnet ? 'MAINNET' : 'TESTNET'}: Swapped ${
+        pair === CoinPair.LUNABLUNA ? 'LUNA→bLUNA' : 'bLUNA→LUNA'
+      } <code>${(amount / MICRO_MULTIPLIER).toFixed(4)} ${
         pair === CoinPair.LUNABLUNA ? 'LUNA' : 'bLUNA'
       }</code> @ <code>${swapRate.toFixed(4)}</code>. Total swapped ${
         this.getConfig()[pair].swappedTokens
@@ -335,13 +342,13 @@ export class ArbitrateBot {
     )
   }
 
-  async execute(useLogger: boolean = false) {
-    console.log(`execute() is in ${this.#status}`)
-
+  async execute(useLogger: boolean = false): Promise<any> {
     if (this.#status !== 'IDLE') {
       console.log('execute() is not in IDLE state. Exiting...')
       return
     }
+
+    let jsonResult = {}
 
     try {
       this.#status = 'RUNNING'
@@ -355,6 +362,12 @@ export class ArbitrateBot {
         this.getWalletBalance(CoinSymbol.LUNA),
         this.getWalletBalance(CoinSymbol.BLUNA),
       ])
+
+      jsonResult = {
+        network: this.#mainnet ? 'mainnet' : 'testnet',
+        lunabluna: 1 / percentage,
+        blunaluna: reversePercentage,
+      }
 
       await this.onCheckingSwapCondition(percentage, reversePercentage, useLogger)
 
@@ -394,6 +407,8 @@ export class ArbitrateBot {
       this.#cache.clear()
       this.#status = 'IDLE'
     }
+
+    return jsonResult
   }
 
   async getWalletBalance(coinSymbol: CoinSymbol): Promise<Coin> {
