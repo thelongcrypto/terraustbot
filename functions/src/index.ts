@@ -43,21 +43,33 @@ tgBot.on('text', async (ctx) => {
     return
   }
 
+  const orgText = `${ctx.message.text}`
   ctx.message.text = ctx.message.text?.toLowerCase()
   command = command.toLowerCase()
 
   if (command === 'hello' || command === 'hi') {
     ctx.replyWithHTML(dedent`Yes! I am here for you. Try following command:
-    - [hi | hello]
-    - [info | i]
-    - [balance | bl]
-    - [enable autoswap | ea]
-    - [disable autoswap | da]
-    - [reset swap batch | rsb]
-    - [swaprate | sr] [pair] [rate] [reversed | r] - use <i>reveserd</i> option to convert rate to 1/rate
-    - [swapbatch | sb] [max batch size]
-    - [snooze] [pair | type] [minutes] - pair could be lunabluna | lb | blunaluna | bl | swap
-    - [swap | sw]`)
+    <u>General</u>
+    - hi | hello
+    - info | i
+    - mainnet | testnet
+    - balance | bl
+    <u>Arbitrate bot</u>
+    - enable autoswap | ea
+    - disable autoswap | da | panic
+    - reset swap batch | rsb
+    - swaprate | sr [pair] [rate] [reversed | r] - use <i>reveserd</i> option to convert rate to 1/rate
+    - swapbatch | sb [max batch size]
+    - snooze [pair | type] [minutes] - pair could be lunabluna | lb | blunaluna | bl | swap
+    - swap | sw
+    <u>Anchorbot</u>
+    - ltv: show loan to value ratio
+    - snooze [anchorborrow|anchorrepay] [minutes]
+    - set [path] [value]: set configuration, path could be anchorborrow.triggerLTV | anchorborrow.targetLTV | anchorborrow.autoExecute | anchorrepay.triggerLTV | anchorrepay.targetLTV | anchorrepay.autoExecute
+
+    Happy bot, happy life!
+    From <b>thelongcrypto</b> with love!
+    `)
   } else if (command === 'info' || command === 'i') {
     const message = await ctx.replyWithHTML('Loading...')
     const msg = await arbBot.getInfo()
@@ -66,12 +78,12 @@ tgBot.on('text', async (ctx) => {
       message.chat.id,
       message.message_id,
       undefined,
-      `${msg} ${anchorMsg}`,
+      `${msg}
+      ${anchorMsg}`,
       {
         parse_mode: 'HTML',
       },
     )
-    // await arbBot.info()
   } else if (command === 'mainnet' || command === 'testnet') {
     const message = await ctx.replyWithHTML(`Switching to ${command}...`)
     await botConfig.setNetwork(command === 'mainnet')
@@ -140,20 +152,30 @@ tgBot.on('text', async (ctx) => {
 
     await arbBot.info()
   } else if (command === 'snooze') {
-    const [, type, minutes] = ctx.message.text?.split(' ')
+    let [, type, minutes] = ctx.message.text?.split(' ')
     if (isNaN(+minutes)) {
       ctx.reply('Send a correct number to indicate how many minutes should be snooozed')
       return
     }
-    if (type === 'blunaluna' || type === 'bl') {
-      await botConfig.snooze('blunaluna', +minutes)
-      ctx.reply(`Snoozed swap bLUNA->LUNA reminder for ${minutes} minutes`)
-    } else if (type === 'lunabluna' || type === 'lb') {
-      await botConfig.snooze('lunabluna', +minutes)
-      ctx.reply(`Snoozed swap LUNA->bLUNA reminder for ${minutes} minutes`)
-    } else if (type === 'swap') {
-      await botConfig.snooze('', +minutes)
-      ctx.reply(`Snoozed swap reminder for ${minutes} minutes`)
+
+    if (type === 'bl') {
+      type = 'blunaluna'
+    } else if (type === 'lb') {
+      type = 'lunabluna'
+    } else if (type === 'borrow') {
+      type = 'anchorborrow'
+    } else if (type === 'repay') {
+      type = 'anchorrepay'
+    }
+
+    if (['blunabluna', 'lunabluna', 'anchorborrow', 'anchorrepay'].includes(type)) {
+      await botConfig.snooze(type, +minutes)
+      ctx.replyWithHTML(`Snoozed ${type} reminder for ${minutes} minutes`)
+    } else {
+      ctx.reply(
+        'Only support <code>snooze all|blunaluna|bl|lunabluna|lb|anchorborrow|anchorrepay [minutes]</code>',
+      )
+      return
     }
   } else if (command === 'balance' || command === 'bl') {
     const message = await ctx.replyWithHTML('Loading...')
@@ -190,8 +212,8 @@ tgBot.on('text', async (ctx) => {
       { parse_mode: 'HTML' },
     )
   } else if (command === 'set') {
-    const [, path, value] = ctx.message.text?.split(' ')
-    console.log('set value', path, value)
+    const [, path, value] = orgText?.split(' ')
+    // console.log('set value', path, value)
     if (!path || !value) {
       ctx.reply('Send a path or value')
       return

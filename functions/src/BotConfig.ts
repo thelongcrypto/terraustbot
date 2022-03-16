@@ -85,6 +85,13 @@ export class BotConfig {
     await this.loadConfig()
   }
 
+  async setConfigValue(doc: string, field: string, value: any) {
+    this.#config[doc][field] = value
+    let newValue: Record<string, any> = {}
+    newValue[field] = value
+    await this.#db.collection(this.#configCollection).doc(doc).set(newValue, { merge: true })
+  }
+
   async setSwapRate(pair: string, rate: number) {
     this.#config[pair].minSwapRate = rate
 
@@ -200,26 +207,23 @@ export class BotConfig {
 
   async snooze(pair: string, minutes: number = 30) {
     if (pair == '') {
-      this.#config[CoinPair.LUNABLUNA].nextRemindTime = new Timestamp(
-        ((new Date().getTime() / 1000) | 0) + minutes * 60,
-        0,
-      )
-      this.#config[CoinPair.BLUNALUNA].nextRemindTime = new Timestamp(
-        ((new Date().getTime() / 1000) | 0) + minutes * 60,
-        0,
+      const arr = [CoinPair.LUNABLUNA, CoinPair.BLUNALUNA, 'anchorborrow', 'anchorrepay']
+      arr.map(
+        (pair) =>
+          (this.#config[pair].nextRemindTime = new Timestamp(
+            ((new Date().getTime() / 1000) | 0) + minutes * 60,
+            0,
+          )),
       )
 
       // db update
       let batch = this.#db.batch()
-      batch.set(
-        this.#db.collection(this.#configCollection).doc(CoinPair.LUNABLUNA),
-        { nextRemindTime: this.#config[CoinPair.LUNABLUNA].nextRemindTime },
-        { merge: true },
-      )
-      batch.set(
-        this.#db.collection(this.#configCollection).doc(CoinPair.BLUNALUNA),
-        { nextRemindTime: this.#config[CoinPair.BLUNALUNA].nextRemindTime },
-        { merge: true },
+      arr.map((pair) =>
+        batch.set(
+          this.#db.collection(this.#configCollection).doc(pair),
+          { nextRemindTime: this.#config[pair].nextRemindTime },
+          { merge: true },
+        ),
       )
       await batch.commit()
     } else {

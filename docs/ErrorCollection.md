@@ -20,3 +20,8 @@ data: {
 
 https://docs.terra.money/docs/develop/dapp/smart-contracts/manage-cw20-tokens.html
 
+
+- TypeError: __classPrivateFieldGet(...)[pair].nextRemindTime.toDate is not a function
+Reason: export and import firebase cloud store has error, type timestamp is converted to map type so nextRemindTime cannot be recognized as Timestamp
+
+- targetLTV also set to string "85" instead of number 85

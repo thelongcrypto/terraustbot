@@ -29,6 +29,7 @@ Recommend to check the bot with testnet first to gain confidence and know how to
 - ltv: show current loan to value ratio
 - goto [ltv]: borrow more or repay loans using funds from wallet / anchor earn, for example `goto 50` will make LTV of borrow to 50%
 - snooze [type] [minutes]: type could be anchorborrow | anchorrepay. This will delay notification until after [minutes]
+- set [path] [value]: path could be anchorborrow.triggerLTV | anchorborrow.targetLTV | anchorrepay.triggerLTV | anchorrepay.targetLV | anchorborrow.autoExecute | anchorrepay.autoExecute
 ## limit order
 
 # Tips to maximize benefit
@@ -36,11 +37,17 @@ Recommend to check the bot with testnet first to gain confidence and know how to
 - For critical situation like LTV come close to liquidation or good arbitrate opportunity you can try continuous notification mode which send the message with sound over and over again - similar to phone call to gain your attention.
 
 # How to setup
-If below steps are still complicated for you, I am thinking about how to make deployment easier. In the mean time reach me through https://twitter.com/thelongcrypto for support.
-## 1. Create firebase secrets
-Terra Wallet mnemonic phrases, telegram bot api key and your telegram user id is required.
+If below steps are still complicated for you, I am thinking about how to make deployment easier. In the mean time reach me through https://twitter.com/thelongcrypto for support. I may be able to help in my spare time.
+## 1. Create firebase project and setting up variables / secrets
+### 1.1 Create firebase project
+https://firebase.google.com/docs/functions/get-started
 
-If you don't know how to get telegram bot api key and telegram user id please see section telegram bot below.
+### 1.2 Setting up variables / secrets
+Terra Wallet 24 words phrase mnemonic phrases (MNEMONIC), telegram bot api key (BOT_API_KEY) and your telegram user id (BOT_CHAT_ID) are required.
+
+- Chat with BotFather to create your own bot and get bot api key (token). It is a string like 5308330920:AAGAxdxXx0L4epJ7iBaNCSbC6GHwC7Nw9ii
+See detail instructions here https://firebase.google.com/docs/admin/setup#initialize-sdk
+- Chat with IDBot to get your user id. It is a number like 6252965263
 
 Type following commands and input value accordingly
 
@@ -54,7 +61,7 @@ Type following commands and input value accordingly
 - Create firebase Firestore database
 - Import data
 
-Get your firebase credential and put it to GOOGLE_APPLICATION_CREDENTIALS env variable.
+Get your firebase credential and put it to GOOGLE_APPLICATION_CREDENTIALS env variable. See detail instructions here https://firebase.google.com/docs/admin/setup#initialize-sdk
 
 `export GOOGLE_APPLICATION_CREDENTIALS=...`
 
@@ -62,24 +69,52 @@ Going to `functions` folder and run following commands:
 
 `npm run import`
 
-Check if you can see `general_config`, `mainnet_config` and `testnet_config` collections in your database.
+Check if you can see `general_config`, `mainnet_config` and `testnet_config` collections in your Firebase Firestore database.
 
-## 3. Local development
-Go to `functions` folder.
+- Backup configuration data
+To backup your configuration, run `npm run export`. Backup file can be found in `config` folder
 
-`npm run build && firebase emulators:start`
-## 4. Production with firebase cloud function
-Go to `functions` folder.
+## 3. Build & deploy
+### 3.1 Local development
+Go to `functions` folder and run `npm run build && firebase emulators:start`
+### 3.2 Production with firebase cloud function
+Go to `functions` folder and run `firebase deploy --only functions`
 
-`firebase deploy --only functions`
+## 4. Running
+If setup correctly, you can now be able to chat with telegram bot and have it responses accordingly. The default configuration is running in testnet, you can switch between testnet and mainnet anytime by sending `testnet` or `mainnet` to the telegram bot, type `i` or `info` for configuration information at a glance.
 
-## Telegram bot
-- Chat with BotFather to create your own bot and get bot api key (token). It is a string like 5308330920:AAGAxdxXx0L4epJ7iBaNCSbC6GHwC7Nw9ii
-- Chat with IDBot to get your user id. It is a number like 6252965263
+See section `Telegram commands` above for full list of commands.
+
+### 4.1 Local environment
+For telegram bot to function you will need a tunnel to expose local service to the internet. `ngrok` or `localtunnel` can be used for this.
+
+For example `npx localtunnel --port 5001 --subdomain yoursubdomain`
+Notice that subdomain should be matched with your Google Cloud Project name as it is declared in `index.js` for telegram bot webhook
+
+```
+if (process.env.GOOGLE_APPLICATION_CREDENTIALS) {
+  telegramUrl = `https://${process.env.GCLOUD_PROJECT!}.loca.lt/${process.env
+    .GCLOUD_PROJECT!}/us-central1/telegrambot`
+}
+```
+
+You are free to change this though.
+
+For more information see https://github.com/localtunnel/localtunnel
+
+For local emulator, since firebase pub/sub not supporting for scheduled function to run function as cronjob you might want to try one of the below:
+1. Use firebase shell
+firebase functions:shell
+firebase > setInterval(() => arbbot(), 20000)
+
+firebase > setInterval(() => anchorbot(), 20000)
+
+2. Explicitly request to exposed functions /checkarb and /checkanchor
+watch -n 20 curl https://{yourprojectname}.loca.lt/{yourprojectname}/us-central1/checkarb
+watch -n 20 curl https://{yourprojectname}.loca.lt/{yourprojectname}/us-central1/checkanchor
 
 ## Testing with testnet
 If you would like to try the bot before running in production, you may want to use the Terra Testnet. You can add fake money to your Testnet Wallet using https://faucet.terra.money/.
-
 
 # Roadmap
 - [ ] infrastructure

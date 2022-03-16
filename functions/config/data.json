@@ -1,0 +1,182 @@
+{
+  "__collections__": {
+    "general_config": {
+      "network": {
+        "mainnet": false,
+        "__collections__": {}
+      }
+    },
+    "mainnet_config": {
+      "anchor": {
+        "minbLUNACompound": 5,
+        "minUSTBalance": 30,
+        "minLUNACompound": 5,
+        "minANCCompound": 5,
+        "pair": "anchor",
+        "nextRemindTime": {
+          "__datatype__": "timestamp",
+          "value": {
+            "_seconds": 1647464165,
+            "_nanoseconds": 0
+          }
+        },
+        "__collections__": {}
+      },
+      "anchorborrow": {
+        "triggerLTV": 75,
+        "field": 50,
+        "autoExecute": false,
+        "targetLTV": 85,
+        "pair": "anchorborrow",
+        "nextRemindTime": {
+          "__datatype__": "timestamp",
+          "value": {
+            "_seconds": 1647463296,
+            "_nanoseconds": 0
+          }
+        },
+        "__collections__": {}
+      },
+      "anchorrepay": {
+        "targetLTV": 85,
+        "nextRemindTime": {
+          "__datatype__": "timestamp",
+          "value": {
+            "_seconds": 946659600,
+            "_nanoseconds": 0
+          }
+        },
+        "pair": "anchorrepay",
+        "triggerLTV": 90,
+        "autoExecute": true,
+        "__collections__": {}
+      },
+      "blunaluna": {
+        "nextRemindTime": {
+          "__datatype__": "timestamp",
+          "value": {
+            "_seconds": 1647458646,
+            "_nanoseconds": 0
+          }
+        },
+        "pair": "blunaluna",
+        "maxSpread": 1,
+        "maxTokensPerSwapExtra": 300,
+        "maxTokensPerSwap": 200,
+        "swappedTokens": 0,
+        "minSwapRate": 0.986,
+        "minSwapTokens": 10,
+        "swapRemindMode": "default",
+        "maxSwapTokensPerBatch": 1000,
+        "autoswap": false,
+        "__collections__": {}
+      },
+      "lunabluna": {
+        "minSwapTokens": 10,
+        "nextRemindTime": {
+          "__datatype__": "timestamp",
+          "value": {
+            "_seconds": 946659600,
+            "_nanoseconds": 0
+          }
+        },
+        "maxSpread": 1,
+        "autoswap": false,
+        "maxSwapTokensPerBatch": 1000,
+        "swappedTokens": 0,
+        "minSwapRate": 1.0205,
+        "swapRemindMode": "default",
+        "maxTokensPerSwap": 200,
+        "maxTokensPerSwapExtra": 300,
+        "pair": "lunabluna",
+        "__collections__": {}
+      }
+    },
+    "testnet_config": {
+      "anchor": {
+        "minbLUNACompound": 5,
+        "minUSTBalance": 30,
+        "minLUNACompound": 5,
+        "minANCCompound": 5,
+        "pair": "anchor",
+        "nextRemindTime": {
+          "__datatype__": "timestamp",
+          "value": {
+            "_seconds": 1647464165,
+            "_nanoseconds": 0
+          }
+        },
+        "__collections__": {}
+      },
+      "anchorborrow": {
+        "triggerLTV": 75,
+        "field": 50,
+        "autoExecute": false,
+        "targetLTV": 85,
+        "pair": "anchorborrow",
+        "nextRemindTime": {
+          "__datatype__": "timestamp",
+          "value": {
+            "_seconds": 1647463296,
+            "_nanoseconds": 0
+          }
+        },
+        "__collections__": {}
+      },
+      "anchorrepay": {
+        "targetLTV": 85,
+        "nextRemindTime": {
+          "__datatype__": "timestamp",
+          "value": {
+            "_seconds": 946659600,
+            "_nanoseconds": 0
+          }
+        },
+        "pair": "anchorrepay",
+        "triggerLTV": 90,
+        "autoExecute": true,
+        "__collections__": {}
+      },
+      "blunaluna": {
+        "nextRemindTime": {
+          "__datatype__": "timestamp",
+          "value": {
+            "_seconds": 1647458646,
+            "_nanoseconds": 0
+          }
+        },
+        "pair": "blunaluna",
+        "maxSpread": 1,
+        "maxTokensPerSwapExtra": 300,
+        "maxTokensPerSwap": 200,
+        "swappedTokens": 0,
+        "minSwapRate": 0.986,
+        "minSwapTokens": 10,
+        "swapRemindMode": "default",
+        "maxSwapTokensPerBatch": 1000,
+        "autoswap": false,
+        "__collections__": {}
+      },
+      "lunabluna": {
+        "minSwapTokens": 10,
+        "nextRemindTime": {
+          "__datatype__": "timestamp",
+          "value": {
+            "_seconds": 946659600,
+            "_nanoseconds": 0
+          }
+        },
+        "maxSpread": 1,
+        "autoswap": false,
+        "maxSwapTokensPerBatch": 1000,
+        "swappedTokens": 0,
+        "minSwapRate": 1.0205,
+        "swapRemindMode": "default",
+        "maxTokensPerSwap": 200,
+        "maxTokensPerSwapExtra": 300,
+        "pair": "lunabluna",
+        "__collections__": {}
+      }
+    }
+  }
+}

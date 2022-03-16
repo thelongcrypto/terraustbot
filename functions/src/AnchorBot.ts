@@ -1,4 +1,4 @@
-import { dset } from 'dset'
+// import { dset } from 'dset'
 import dedent from 'dedent-js'
 import Decimal from 'decimal.js'
 import {
@@ -136,7 +136,7 @@ export class AnchorBot {
 
     return dedent`${
       fullVersion
-        ? dedent`<b>v0.3.0 - Anchor Borrow / Repay Bot</b>
+        ? dedent`<b>v0.9.1 - Anchor Borrow / Repay Bot</b>
 				<b>Execution #${this.#executeCount + 1} - last run in ${hours.toFixed(0)} hours ${minutes.toFixed(
             0,
           )} minutes ${seconds.toFixed(0)} seconds</b>
@@ -149,21 +149,22 @@ export class AnchorBot {
 				</a>`
         : ``
     }
-				<b>Status:</b> <code>${this.#status}</code>
+    ${dedent`
+        <b>Anchor Bot Status:</b> <code>${this.#status}</code>
 
-				<u>Anchor Configuration:</u>
-					- <b>Auto repay:</b> <code>${this.getConfig().anchorrepay.autoExecute}</code>
-					- <b>Repay trigger:</b> <code>${this.getConfig().anchorrepay.triggerLTV}%</code>
-					- <b>Repay target:</b> <code>${this.getConfig().anchorrepay.targetLTV}%</code>
-					- <b>Auto borrow:</b> <code>${this.getConfig().anchorborrow.autoExecute}</code>
-					- <b>Borrow trigger:</b> <code>${this.getConfig().anchorborrow.triggerLTV}%</code>
-					- <b>Borrow target:</b> <code>${this.getConfig().anchorborrow.targetLTV}%</code>
-                    - <b>Min UST Balance:</b> <code>${this.getConfig().anchor.minUSTBalance}</code>
-
-				<u>Compound minimums:</u>
-					- <b>ANC:</b> <code>${this.getConfig().anchor.minANCCompound}</code>
-					- <b>LUNA:</b> <code>${this.getConfig().anchor.minLUNACompound}</code>
-					- <b>BLUNA:</b> <code>${this.getConfig().anchor.minbLUNACompound}</code>
+        <u>Anchor Configuration:</u>
+            - Auto repay: <code>${this.getConfig().anchorrepay.autoExecute}</code>
+            - Repay trigger: <code>${this.getConfig().anchorrepay.triggerLTV}%</code>
+            - Repay target: <code>${this.getConfig().anchorrepay.targetLTV}%</code>
+            - Auto borrow: <code>${this.getConfig().anchorborrow.autoExecute}</code>
+            - Borrow trigger: <code>${this.getConfig().anchorborrow.triggerLTV}%</code>
+            - Borrow target: <code>${this.getConfig().anchorborrow.targetLTV}%</code>
+            - Min UST Balance: <code>${this.getConfig().anchor.minUSTBalance}</code>
+        
+        <u>Compound minimums:</u>
+            - ANC: <code>${this.getConfig().anchor.minANCCompound}</code>
+            - LUNA: <code>${this.getConfig().anchor.minLUNACompound}</code>
+            - BLUNA: <code>${this.getConfig().anchor.minbLUNACompound}</code>`}
 		`
   }
   info() {
@@ -181,7 +182,8 @@ export class AnchorBot {
     Logger.log(this.getInfo())
   }
 
-  set(path: string, value: any) {
+  async set(path: string, value: any) {
+    let valid = true
     if (path === 'anchorborrow.targetLTV') {
       if (+value > 94) {
         Logger.log('You cannot go over <code>94</code>.')
@@ -212,6 +214,12 @@ export class AnchorBot {
       }
 
       value = +value
+    } else if (path === 'anchor.minANCCompound') {
+      value = +value
+    } else if (path === 'anchor.minLUNACompound') {
+      value = +value
+    } else if (path === 'anchor.minbLUNACompound') {
+      value = +value
     } else if (path === 'anchorborrow.autoExecute') {
       if (!isBoolean(value)) {
         Logger.log(`The value must be a boolean (true/false).`)
@@ -226,19 +234,17 @@ export class AnchorBot {
       }
 
       value = toBoolean(value)
-    } else if (path === 'anchor.minANCCompound') {
-      value = +value
-    } else if (path === 'anchor.minLUNACompound') {
-      value = +value
-    } else if (path === 'anchor.minbLUNACompound') {
-      value = +value
     } else {
       Logger.log(`Invalid set option, <code>${path}</code> is not a recognized option`)
-      return
+      valid = false
     }
 
-    dset(this.getConfig(), path, value)
-    Logger.log(`Configuration changed. <code>${path}</code> is now at <code>${value}</code>`)
+    if (valid) {
+      //   dset(this.getConfig(), path, value)
+      const [doc, field] = path.split('.')
+      await this.#config.setConfigValue(doc, field, value)
+      Logger.log(`Configuration changed. <code>${path}</code> is now at <code>${value}</code>`)
+    }
   }
 
   run() {
@@ -267,7 +273,6 @@ export class AnchorBot {
   }
 
   shouldBorrow(ltv: Decimal, goTo?: Decimal) {
-
     return (
       (typeof goTo !== 'undefined' && ltv.lessThan(goTo)) ||
       +ltv.lessThan(this.getConfig().anchorborrow.triggerLTV)

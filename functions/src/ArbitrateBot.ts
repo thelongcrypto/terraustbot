@@ -38,7 +38,7 @@ export class ArbitrateBot {
   #mainnet: boolean = false
 
   static get version() {
-    return '0.2.1'
+    return '0.9.1'
   }
 
   constructor(config: any) {
@@ -100,42 +100,42 @@ export class ArbitrateBot {
 				${this.getWallet().key.accAddress}
 			</a>
 
-			<b>Status:</b> <code>${this.#status}</code>
+			<b>Arbitrate bot status:</b> <code>${this.#status}</code>
 			
 			<u>Swap Configuration:</u>
-      - <b>Autoswap: LUNA - bLUNA </b>  <code>${
+      - Autoswap: LUNA - bLUNA <code>${
         this.getConfig()[CoinPair.LUNABLUNA].autoswap ? 'YES' : 'NO'
       }</code>
-      - <b>Autoswap: bLUNA - LUNA </b>  <code>${
+      - Autoswap: bLUNA - LUNA <code>${
         this.getConfig()[CoinPair.BLUNALUNA].autoswap ? 'YES' : 'NO'
       }</code>
-      - <b>Swap LUNA-bLUNA:</b> <code>${this.getConfig()[CoinPair.LUNABLUNA].minSwapRate}</code>
-      - <b>Reverse swap bLUNA-LUNA:</b> <code>${
+      - Swap LUNA-bLUNA: <code>${this.getConfig()[CoinPair.LUNABLUNA].minSwapRate}</code>
+      - Reverse swap bLUNA-LUNA: <code>${
         this.getConfig()[CoinPair.BLUNALUNA].minSwapRate
       }</code>
-      - <b>Max spread:</b> <code>${this.getConfig()[CoinPair.LUNABLUNA].maxSpread}%</code>
-      - <b>Max token per swap:</b> <code>${
+      - Max spread: <code>${this.getConfig()[CoinPair.LUNABLUNA].maxSpread}%</code>
+      - Max token per swap: <code>${
         this.getConfig()[CoinPair.LUNABLUNA].maxTokensPerSwap
       }</code>
-      - <b>Max token per batch:</b> <code>${
+      - Max token per batch: <code>${
         this.getConfig()[CoinPair.LUNABLUNA].maxSwapTokensPerBatch
       }</code>
-      - <b>Swap LUNA in current batch:</b> <code>${
+      - Swap LUNA in current batch: <code>${
         this.getConfig()[CoinPair.LUNABLUNA].swappedTokens
       }</code>
-      - <b>Swap bLUNA in current batch:</b> <code>${
+      - Swap bLUNA in current batch: <code>${
         this.getConfig()[CoinPair.BLUNALUNA].swappedTokens
       }</code>
 			
 			<u>Current rate</u>
-				- LUNA-bLUNA: <code>${percentage.toFixed(4)}</code> ~ <code>${(1 / percentage).toFixed(
+				- LUNA-bLUNA: <code>${percentage.toFixed(4)}</code> (<code>${(1 / percentage).toFixed(
       4,
-    )}</code> ~ <code>${(
+    )}</code> reversed) ~ <code>${(
       (100 * percentage) /
       this.getConfig()[CoinPair.LUNABLUNA].minSwapRate
     ).toFixed(4)}%</code> from target <code>${
       this.getConfig()[CoinPair.LUNABLUNA].minSwapRate
-    }</code> ~ <code>${(1 / this.getConfig()[CoinPair.LUNABLUNA].minSwapRate).toFixed(4)}</code>
+    }</code> (<code>${(1 / this.getConfig()[CoinPair.LUNABLUNA].minSwapRate).toFixed(4)}</code> reversed)
 				- bLUNA-LUNA: <code>${reversePercentage.toFixed(4)}</code> ~ <code>${(
       (100 * reversePercentage) /
       this.getConfig()[CoinPair.BLUNALUNA].minSwapRate
