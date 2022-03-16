@@ -11,6 +11,20 @@ Being a LUNAtics, with developer background and now turned product manager I kee
 As a bonus layer for better security, I have made the code to use firebase secret for storing your private key (24-words mnemnonic phrase) so the key has no exposure in .env file or command line.
 Recommend to check the bot with testnet first to gain confidence and know how to interact with the bot and how it works. See the testing section below on how.
 
+# How it works
+## 1. anchor bot
+The bot will fetch your current LTV every N minutes (1 by default due to firebase function limitation).
+
+If your LTV is higher than anchorrepay.triggerLTV (90% per default) and the option anchorrepay.autoExecute is activated the bot will try to repay the sum needed to make your LTV back at ltv.safe (85% per default).
+
+If your LTV is lower than anchorborrow.triggerLTV (75% per default) and the option anchorborrow.autoExecute is activated, the bot will borrow more to reach the anchorborrow.targetLTV (85% per default), then it will deposit the amount borrowed into Earn to maximize yield.
+
+## 2. arbitrate bot
+Looking at this chart https://coinhall.org/charts/terra/terra1j66jatn3k50hjtg2xemnjm8s7y8dws9xqa5y8w you will see the bluna/luna rate always move within a fixed range, usually around 0.97 to 1. Interesting thing is that 1 bLUNA can be unbond in anchor to get back 1 LUNA. So when bLUNA/LUNA is less than 1, for instance at 0.98 you can exchange 100 LUNA for 102 bLUNA and unbond it to have 102 LUNA which is equivalent to 2%. This fact make us always have profit when buying bluna at the rate less than 1. Why don't we speeding up the profit making process to buy low and sell high, such as buying bLUNA when rate is 0.97 and sell when rate is 0.99 ~ 2%. This usually takes less than 21 days so you can have more loops.
+
+The bot will fetch bluna/luna rate from astroport pool every N minutes (1 by default). If the luna/bluna or bluna/luna rate is larger than configure amount it will remind to telegram bot for you to take action. The bot also have setting to auto swap when condition hit (use `enable autoswap` command to allow bot doing this for you).
+
+If you are #LUNAtics and a long term hodler this will make you accumulate much more LUNA, assuming each week you can arbitrate once with 1.5% profit each, a year with 52 weeks will make you at least 52*1.5% = 78%. This is also what make me love the Terra blockchain ecosystem, there are so much opportunity. I wish you prosperity in the years ahead.
 # Telegram commands
 ## arbitrate
 - hi | hello
