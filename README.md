@@ -75,6 +75,7 @@ Check if you can see `general_config`, `mainnet_config` and `testnet_config` col
 To backup your configuration, run `npm run export`. Backup file can be found in `config` folder
 
 ## 3. Build & deploy
+Rename .env.example to .env
 ### 3.1 Local development
 Go to `functions` folder and run `npm run build && firebase emulators:start`
 ### 3.2 Production with firebase cloud function
