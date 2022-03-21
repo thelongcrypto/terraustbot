@@ -110,13 +110,9 @@ export class ArbitrateBot {
         this.getConfig()[CoinPair.BLUNALUNA].autoswap ? 'YES' : 'NO'
       }</code>
       - Swap LUNA-bLUNA: <code>${this.getConfig()[CoinPair.LUNABLUNA].minSwapRate}</code>
-      - Reverse swap bLUNA-LUNA: <code>${
-        this.getConfig()[CoinPair.BLUNALUNA].minSwapRate
-      }</code>
+      - Reverse swap bLUNA-LUNA: <code>${this.getConfig()[CoinPair.BLUNALUNA].minSwapRate}</code>
       - Max spread: <code>${this.getConfig()[CoinPair.LUNABLUNA].maxSpread}%</code>
-      - Max token per swap: <code>${
-        this.getConfig()[CoinPair.LUNABLUNA].maxTokensPerSwap
-      }</code>
+      - Max token per swap: <code>${this.getConfig()[CoinPair.LUNABLUNA].maxTokensPerSwap}</code>
       - Max token per batch: <code>${
         this.getConfig()[CoinPair.LUNABLUNA].maxSwapTokensPerBatch
       }</code>
@@ -128,20 +124,16 @@ export class ArbitrateBot {
       }</code>
 			
 			<u>Current rate</u>
-				- LUNA-bLUNA: <code>${percentage.toFixed(4)}</code> (<code>${(1 / percentage).toFixed(
-      4,
-    )}</code> reversed) ~ <code>${(
+				- LUNA-bLUNA: ${percentage.toFixed(4)} (<code>${(1 / percentage).toFixed(4)}</code> reversed) ~ ${(
       (100 * percentage) /
       this.getConfig()[CoinPair.LUNABLUNA].minSwapRate
-    ).toFixed(4)}%</code> from target <code>${
-      this.getConfig()[CoinPair.LUNABLUNA].minSwapRate
-    }</code> (<code>${(1 / this.getConfig()[CoinPair.LUNABLUNA].minSwapRate).toFixed(4)}</code> reversed)
-				- bLUNA-LUNA: <code>${reversePercentage.toFixed(4)}</code> ~ <code>${(
+    ).toFixed(4)}% from target ${this.getConfig()[CoinPair.LUNABLUNA].minSwapRate} (<code>${(
+      1 / this.getConfig()[CoinPair.LUNABLUNA].minSwapRate
+    ).toFixed(4)}</code> reversed)
+				- bLUNA-LUNA: <code>${reversePercentage.toFixed(4)}</code> ~ ${(
       (100 * reversePercentage) /
       this.getConfig()[CoinPair.BLUNALUNA].minSwapRate
-    ).toFixed(4)}%</code> from target <code>${
-      this.getConfig()[CoinPair.BLUNALUNA].minSwapRate
-    }</code>
+    ).toFixed(4)}% from target <code>${this.getConfig()[CoinPair.BLUNALUNA].minSwapRate}</code>
 				- Arbitrate: <code>${(
           100 *
           (this.getConfig()[CoinPair.BLUNALUNA].minSwapRate -
@@ -462,7 +454,13 @@ export class ArbitrateBot {
     const balance = await this.getWalletBalance(CoinSymbol.LUNA)
     let amount = (MICRO_MULTIPLIER * 100).toString()
 
-    if (balance && +balance?.amount > +this.getMaxTokenSwap(CoinPair.LUNABLUNA)) {
+    // bug: when amount is tiny fraction (such as 0.000002 Luna -> bLUNA swap 
+    // can be 0.000003 which is luna / bluna = 1.5 while actual swap with 100 luna still have low rate)
+    if (
+      balance &&
+      (+balance?.amount > +this.getMaxTokenSwap(CoinPair.LUNABLUNA) ||
+        +balance?.amount < +this.getMinSwapTokens(CoinPair.LUNABLUNA))
+    ) {
       amount = this.getMaxTokenSwap(CoinPair.LUNABLUNA).toString()
     } else if (balance && +balance?.amount !== 0) {
       amount = balance?.amount.toString()
@@ -482,6 +480,8 @@ export class ArbitrateBot {
 
     const returnAmount = new Decimal(rate.return_amount)
 
+    // console.log('luna -> bluna', amount, rate)
+
     return returnAmount.dividedBy(amount).toNumber()
   }
 
@@ -489,7 +489,11 @@ export class ArbitrateBot {
     const balance = await this.getbLunaBalance()
     let amount = (MICRO_MULTIPLIER * 100).toString()
 
-    if (balance && +balance?.amount > +this.getMaxTokenSwap(CoinPair.BLUNALUNA)) {
+    if (
+      balance &&
+      (+balance?.amount > +this.getMaxTokenSwap(CoinPair.BLUNALUNA) ||
+        +balance?.amount < +this.getMinSwapTokens(CoinPair.BLUNALUNA))
+    ) {
       amount = this.getMaxTokenSwap(CoinPair.BLUNALUNA).toString()
     } else if (balance && +balance.amount !== 0) {
       amount = balance?.amount.toString()
