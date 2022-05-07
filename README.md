@@ -1,3 +1,7 @@
+# Friendly reminder
+Limit order i.e. the ability to buy or sell a token at specific price is supported in https://dexa.finance, you can arbitrate bLUNA or many other pairs such as xPRISM / PRISM, LUNAX / LUNA, kUST / UST, xASTRO / ASTRO, aUST / UST ...
+Special types of orders are also in testing phase including recurring orders, basically you just place an order to buy bLUNA at 0.990 and sell bLUNA at 0.999 ~ 1% repeatedly which give you better yield than staking LUNA. This might be the easiest way to earn more LUNA while being a HODLer.
+
 # The bot for LUNAtics - with support for bLUNA arbitrate and anchor protocol
 Being a LUNAtics, with developer background and now turned product manager I keep thinking about how to use the tech to make my life and everyone life easier. This effort is one of them.
 - Release you from headache and worrying of liquidation by actively monitoring LTV (Loan to value) ratio, contiuous notification mode to gain your attention in critical situation and auto repay loans by withdrawing UST from Earn or Wallet or more / auto borrow to maximize yield when LTV is low
